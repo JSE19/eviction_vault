@@ -14,8 +14,6 @@ contract TransactionManager is VaultManager {
         uint256 executionTime;
     }
 
-    // owners, isOwner, paused, totalVaultValue, and related modifiers/errors
-    // are defined in VaultManager to avoid duplication across modules.
 
     mapping(uint256 => mapping(address => bool)) public confirmed;
     mapping(uint256 => Transaction) public transactions;
@@ -26,7 +24,7 @@ contract TransactionManager is VaultManager {
     uint256 public constant TIMELOCK_DURATION = 1 hours;
 
     error Executed();
-    // AddressZero is defined in VaultManager and inherited
+    
 
     event Submission(uint256 indexed txId);
     event Confirmation(uint256 indexed txId, address indexed owner);

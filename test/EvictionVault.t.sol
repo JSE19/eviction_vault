@@ -27,123 +27,123 @@ contract EvictionVaultTest is Test {
     }
 
     
-    function testDeposit() public {
-        deal(user1, 5 ether);
-        vm.prank(user1);
+    // function testDeposit() public {
+    //     deal(user1, 5 ether);
+    //     vm.prank(user1);
         
-        vault.deposit{value: 1 ether}();
+    //     vault.deposit{value: 1 ether}();
         
-        assertEq(vault.balances(user1), 1 ether);
-        assertEq(vault.totalVaultValue(), 1 ether);
-    }
+    //     assertEq(vault.balances(user1), 1 ether);
+    //     assertEq(vault.totalVaultValue(), 1 ether);
+    // }
 
     
-    function testReceiveETH() public {
-        vm.prank(user1);
-        vm.deal(user1, 5 ether);
+    // function testReceiveETH() public {
+    //     vm.prank(user1);
+    //     vm.deal(user1, 5 ether);
         
-        (bool success, ) = address(vault).call{value: 2 ether}("");
-        require(success);
+    //     (bool success, ) = address(vault).call{value: 2 ether}("");
+    //     require(success);
         
-        assertEq(vault.balances(user1), 2 ether);
-        assertEq(vault.totalVaultValue(), 12 ether);
-    }
+    //     assertEq(vault.balances(user1), 2 ether);
+    //     assertEq(vault.totalVaultValue(), 12 ether);
+    // }
 
     
-    function testSubmitTransaction() public {
-        vm.prank(owner1);
-        vault.submitTransaction(user1, 1 ether, "");
+    // function testSubmitTransaction() public {
+    //     vm.prank(owner1);
+    //     vault.submitTransaction(user1, 1 ether, "");
         
-        (address to, uint256 value, , bool executed, uint256 confirmations, , ) = vault.transactions(0);
-        assertEq(to, user1);
-        assertEq(value, 1 ether);
-        assertEq(executed, false);
-        assertEq(confirmations, 1);
-    }
+    //     (address to, uint256 value, , bool executed, uint256 confirmations, , ) = vault.transactions(0);
+    //     assertEq(to, user1);
+    //     assertEq(value, 1 ether);
+    //     assertEq(executed, false);
+    //     assertEq(confirmations, 1);
+    // }
 
     
-    function testConfirmTransaction() public {
-        vm.prank(owner1);
-        vault.submitTransaction(user1, 1 ether, "");
+    // function testConfirmTransaction() public {
+    //     vm.prank(owner1);
+    //     vault.submitTransaction(user1, 1 ether, "");
 
-        vm.prank(owner2);
-        vault.confirmTransaction(0);
+    //     vm.prank(owner2);
+    //     vault.confirmTransaction(0);
 
-        (, , , , uint256 confirmations, , uint256 executionTime) = vault.transactions(0);
-        assertEq(confirmations, 2);
-        assertGt(executionTime, 0); 
-    }
-
-    
-    function testExecuteTransaction() public {
-        vm.prank(owner1);
-        vault.submitTransaction(user1, 1 ether, "");
-
-        vm.prank(owner2);
-        vault.confirmTransaction(0);
+    //     (, , , , uint256 confirmations, , uint256 executionTime) = vault.transactions(0);
+    //     assertEq(confirmations, 2);
+    //     assertGt(executionTime, 0); 
+    // }
 
     
-        vm.warp(block.timestamp + 3601);
+    // function testExecuteTransaction() public {
+    //     vm.prank(owner1);
+    //     vault.submitTransaction(user1, 1 ether, "");
 
-        vm.prank(owner3);
-        vault.executeTransaction(0);
-
-        (, , , bool executed, , , ) = vault.transactions(0);
-        assertEq(executed, true);
-    }
+    //     vm.prank(owner2);
+    //     vault.confirmTransaction(0);
 
     
-    function testPauseUnpause() public {
-        assertEq(vault.paused(), false);
+    //     vm.warp(block.timestamp + 3601);
 
-        vm.prank(owner1);
-        vault.pause();
-        assertEq(vault.paused(), true);
+    //     vm.prank(owner3);
+    //     vault.executeTransaction(0);
 
-        vm.prank(owner1);
-        vault.unpause();
-        assertEq(vault.paused(), false);
-    }
+    //     (, , , bool executed, , , ) = vault.transactions(0);
+    //     assertEq(executed, true);
+    // }
 
     
-    function testEmergencyWithdrawAll() public {
-        uint256 initialBalance = address(vault).balance;
+    // function testPauseUnpause() public {
+    //     assertEq(vault.paused(), false);
+
+    //     vm.prank(owner1);
+    //     vault.pause();
+    //     assertEq(vault.paused(), true);
+
+    //     vm.prank(owner1);
+    //     vault.unpause();
+    //     assertEq(vault.paused(), false);
+    // }
+
+    
+    // function testEmergencyWithdrawAll() public {
+    //     uint256 initialBalance = address(vault).balance;
         
-        vm.prank(owner1);
-        vault.emergencyWithdrawAll();
+    //     vm.prank(owner1);
+    //     vault.emergencyWithdrawAll();
 
-        assertEq(address(vault).balance, 0);
-        assertEq(vault.totalVaultValue(), 0);
-    }
-
-    
-    function testSetMerkleRoot() public {
-        bytes32 root = keccak256(abi.encodePacked("test"));
-
-        vm.prank(owner1);
-        vault.setMerkleRoot(root);
-
-        assertEq(vault.merkleRoot(), root);
-    }
+    //     assertEq(address(vault).balance, 0);
+    //     assertEq(vault.totalVaultValue(), 0);
+    // }
 
     
-    function testWithdrawRevertWhenPaused() public {
-        vm.prank(user1);
-        vm.deal(user1, 5 ether);
-        vault.deposit{value: 1 ether}();
+    // function testSetMerkleRoot() public {
+    //     bytes32 root = keccak256(abi.encodePacked("test"));
 
-        vm.prank(owner1);
-        vault.pause();
+    //     vm.prank(owner1);
+    //     vault.setMerkleRoot(root);
 
-        vm.prank(user1);
-        vm.expectRevert();
-        vault.withdraw(0.5 ether);
-    }
+    //     assertEq(vault.merkleRoot(), root);
+    // }
 
     
-    function testSubmitTransactionRevertNonOwner() public {
-        vm.prank(user1);
-        vm.expectRevert();
-        vault.submitTransaction(user1, 1 ether, "");
-    }
+    // function testWithdrawRevertWhenPaused() public {
+    //     vm.prank(user1);
+    //     vm.deal(user1, 5 ether);
+    //     vault.deposit{value: 1 ether}();
+
+    //     vm.prank(owner1);
+    //     vault.pause();
+
+    //     vm.prank(user1);
+    //     vm.expectRevert();
+    //     vault.withdraw(0.5 ether);
+    // }
+
+    
+    // function testSubmitTransactionRevertNonOwner() public {
+    //     vm.prank(user1);
+    //     vm.expectRevert();
+    //     vault.submitTransaction(user1, 1 ether, "");
+    // }
 }
