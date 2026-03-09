@@ -5,10 +5,7 @@ import "./VaultManager.sol";
 import "./TransactionManager.sol";
 import "./ClaimManager.sol";
 
-contract EvictionVault is VaultManager, TransactionManager, ClaimManager {
-    error NoOwners();
-    error AddressZero();
-
+contract EvictionVault is TransactionManager, ClaimManager {
     constructor(address[] memory _owners, uint256 _threshold) payable {
         require(_owners.length > 0, NoOwners());
         threshold = _threshold;

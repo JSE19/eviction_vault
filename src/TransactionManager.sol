@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract TransactionManager {
+import "./VaultManager.sol";
+
+contract TransactionManager is VaultManager {
     struct Transaction {
         address to;
         uint256 value;
@@ -12,30 +14,23 @@ contract TransactionManager {
         uint256 executionTime;
     }
 
-    mapping(address => bool) public isOwner;
+    // owners, isOwner, paused, totalVaultValue, and related modifiers/errors
+    // are defined in VaultManager to avoid duplication across modules.
+
     mapping(uint256 => mapping(address => bool)) public confirmed;
     mapping(uint256 => Transaction) public transactions;
 
     uint256 public threshold;
     uint256 public txCount;
-    bool public paused;
 
     uint256 public constant TIMELOCK_DURATION = 1 hours;
 
-    error NotOwner();
-    error Paused();
     error Executed();
-    error AddressZero();
-    error InsufficientBalance();
+    // AddressZero is defined in VaultManager and inherited
 
     event Submission(uint256 indexed txId);
     event Confirmation(uint256 indexed txId, address indexed owner);
     event Execution(uint256 indexed txId);
-
-    modifier onlyOwner() {
-        require(isOwner[msg.sender], NotOwner());
-        _;
-    }
 
     function submitTransaction(
         address _to,
@@ -62,7 +57,7 @@ contract TransactionManager {
 
     function confirmTransaction(uint256 txId) external onlyOwner {
         require(!paused, Paused());
-        
+
         Transaction storage txn = transactions[txId];
         require(!txn.executed, Executed());
         require(!confirmed[txId][msg.sender], "Already confirmed");
@@ -78,7 +73,7 @@ contract TransactionManager {
 
     function executeTransaction(uint256 txId) external {
         require(!paused, Paused());
-        
+
         Transaction storage txn = transactions[txId];
         require(txn.confirmations >= threshold, "Insufficient confirmations");
         require(!txn.executed, Executed());

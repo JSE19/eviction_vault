@@ -1,27 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "./VaultManager.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-contract ClaimManager {
+contract ClaimManager is VaultManager {
     bytes32 public merkleRoot;
     mapping(address => bool) public claimed;
-    bool public paused;
-    mapping(address => bool) public isOwner;
-    uint256 public totalVaultValue;
 
-    error NotOwner();
-    error Paused();
+
     error Claimed();
 
     event MerkleRootSet(bytes32 indexed newRoot);
     event Claim(address indexed claimant, uint256 amount);
 
-    modifier onlyOwner() {
-        require(isOwner[msg.sender], NotOwner());
-        _;
-    }
 
     function setMerkleRoot(bytes32 root) external onlyOwner {
         merkleRoot = root;
@@ -30,7 +23,7 @@ contract ClaimManager {
 
     function claim(bytes32[] calldata proof, uint256 amount) external {
         require(!paused, Paused());
-        
+
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender, amount));
         bytes32 computed = MerkleProof.processProof(proof, leaf);
         require(computed == merkleRoot, "Invalid proof");

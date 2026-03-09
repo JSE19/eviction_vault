@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-contract EvictionVault {
+contract EvictionVaultCorrections {
     struct Transaction {
         address to;
         uint256 value;
